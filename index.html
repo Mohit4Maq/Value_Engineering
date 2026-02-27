@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Engineering & Product Review — MaqLabs</title>
+<style>
+  :root {
+    --red: #E63027;
+    --red-dark: #C4251E;
+    --navy: #1A1A2E;
+    --navy-light: #2A2A3E;
+    --bg: #F5F5F7;
+    --card: #FFFFFF;
+    --text: #333333;
+    --text-light: #666666;
+    --text-muted: #999999;
+    --border: #E8E8E8;
+    --shadow: 0 2px 20px rgba(0,0,0,0.06);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 14px;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    padding: 48px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    right: 15%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .logo { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: 2px; }
+  .tagline { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 4px; margin-top: 4px; text-transform: uppercase; }
+  .header h1 { font-size: 36px; font-weight: 700; color: #fff; margin-top: 28px; line-height: 1.2; }
+  .header p { font-size: 17px; color: rgba(255,255,255,0.85); margin-top: 12px; max-width: 650px; }
+  .header-accent { width: 60px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin-top: 20px; }
+
+  /* ── Stats Bar ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-top: -36px;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+  }
+  .stat-item {
+    padding: 28px 20px;
+    text-align: center;
+    background: var(--card);
+    transition: background var(--transition);
+  }
+  .stat-item:hover { background: #FAFAFA; }
+  .stat-value { font-size: 30px; font-weight: 800; color: var(--red); }
+  .stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+
+  /* ── Section ── */
+  .section { padding: 56px 0; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    font-size: 16px;
+    color: var(--text-light);
+    max-width: 680px;
+    margin-bottom: 36px;
+  }
+
+  /* ── Phase Cards ── */
+  .phases-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .phase-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow var(--transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .phase-card:hover { box-shadow: var(--shadow-hover); }
+  .phase-card.active { border-color: var(--red); }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    padding: 24px 28px;
+    gap: 20px;
+    user-select: none;
+  }
+
+  .phase-number {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--red);
+    background: #FDE8E7;
+    transition: all var(--transition);
+  }
+  .phase-card.active .phase-number { background: var(--red); color: #fff; }
+
+  .phase-info { flex: 1; }
+  .phase-label { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 2px; text-transform: uppercase; }
+  .phase-name { font-size: 19px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+  .phase-brief { font-size: 14px; color: var(--text-light); margin-top: 2px; }
+
+  .phase-toggle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+  }
+  .phase-toggle svg { transition: transform var(--transition); }
+  .phase-card.active .phase-toggle { background: #FDE8E7; }
+  .phase-card.active .phase-toggle svg { transform: rotate(180deg); }
+
+  .phase-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .phase-card.active .phase-body { max-height: 2000px; }
+
+  .phase-content {
+    padding: 0 28px 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .check-group h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .check-group h4 .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    display: inline-block;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13.5px;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  .check-item .tick {
+    color: var(--red);
+    font-size: 14px;
+    margin-top: 2px;
+    min-width: 16px;
+  }
+
+  .phase-outcome {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #FFF8F7, #FDE8E7);
+    border-radius: 10px;
+    border-left: 3px solid var(--red);
+  }
+  .phase-outcome strong { color: var(--navy); font-size: 13px; }
+  .phase-outcome p { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+
+  /* ── Flow connector ── */
+  .flow-line {
+    width: 2px;
+    height: 16px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  /* ── Deliverables ── */
+  .deliverables-section { background: var(--navy); padding: 56px 0; }
+  .deliverables-section .section-title { color: rgba(255,255,255,0.5); }
+  .deliverables-section .section-heading { color: #fff; }
+  .deliverables-section .section-desc { color: rgba(255,255,255,0.6); }
+
+  .deliverables-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .del-card {
+    background: var(--navy-light);
+    border-radius: 12px;
+    padding: 28px 24px;
+    transition: all var(--transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .del-card:hover { border-color: rgba(230,48,39,0.3); transform: translateY(-2px); }
+  .del-card.expanded { border-color: var(--red); }
+
+  .del-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(230,48,39,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .del-card h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .del-card .del-brief { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .del-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .del-card.expanded .del-detail { max-height: 500px; }
+  .del-detail-inner {
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .del-detail-inner li {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    padding: 4px 0;
+    list-style: none;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .del-detail-inner li::before {
+    content: '\25B8';
+    color: var(--red);
+    min-width: 12px;
+  }
+
+  /* ── Why MaqLabs ── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .why-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 28px;
+    text-align: center;
+    transition: all var(--transition);
+  }
+  .why-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .why-value { font-size: 36px; font-weight: 800; color: var(--red); }
+  .why-label { font-size: 15px; font-weight: 700; color: var(--navy); margin-top: 4px; }
+  .why-desc { font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+
+  /* ── Process Flow ── */
+  .process-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 36px 0 12px;
+    flex-wrap: wrap;
+  }
+  .process-step {
+    padding: 10px 20px;
+    background: var(--card);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+  }
+  .process-arrow {
+    font-size: 18px;
+    color: var(--red);
+    padding: 0 8px;
+    font-weight: 700;
+  }
+
+  /* ── FAQ ── */
+  .faq-section { background: var(--bg); padding: 56px 0; }
+  .faq-list { max-width: 820px; }
+
+  .faq-item {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: all var(--transition);
+  }
+  .faq-item:hover { box-shadow: var(--shadow-hover); }
+  .faq-item.open { border-color: var(--red); }
+
+  .faq-q {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .faq-q-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
+    background: #FDE8E7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--red);
+    transition: all var(--transition);
+  }
+  .faq-item.open .faq-q-icon { background: var(--red); color: #fff; }
+  .faq-q-text { flex: 1; font-size: 16px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+
+  .faq-toggle {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+  }
+  .faq-toggle svg { transition: transform var(--transition); }
+  .faq-item.open .faq-toggle { background: #FDE8E7; }
+  .faq-item.open .faq-toggle svg { transform: rotate(180deg); }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .faq-item.open .faq-a { max-height: 600px; }
+
+  .faq-a-inner {
+    padding: 0 24px 24px 72px;
+    font-size: 14.5px;
+    color: var(--text-light);
+    line-height: 1.7;
+  }
+  .faq-a-inner p { margin-bottom: 10px; }
+  .faq-a-inner p:last-child { margin-bottom: 0; }
+  .faq-a-inner strong { color: var(--navy); }
+  .faq-a-inner ul { padding-left: 18px; margin: 8px 0; }
+  .faq-a-inner li { padding: 3px 0; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    padding: 48px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: -80%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .cta-section h2 { font-size: 28px; font-weight: 700; color: #fff; position: relative; }
+  .cta-section p { font-size: 16px; color: rgba(255,255,255,0.8); margin-top: 12px; max-width: 560px; margin-left: auto; margin-right: auto; position: relative; }
+  .cta-btn {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 16px 40px;
+    background: #fff;
+    color: var(--red);
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all var(--transition);
+    position: relative;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+  /* ── Footer ── */
+  .footer {
+    background: var(--navy);
+    padding: 36px 0;
+    text-align: center;
+  }
+  .footer .logo { font-size: 24px; }
+  .footer .tagline { margin-bottom: 12px; }
+  .footer p { font-size: 13px; color: rgba(255,255,255,0.35); }
+  .footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .phase-columns { grid-template-columns: 1fr; }
+    .deliverables-grid { grid-template-columns: 1fr; }
+    .why-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 26px; }
+    .process-flow { flex-direction: column; gap: 8px; }
+    .process-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+  <div class="container">
+    <div class="logo">maq labs</div>
+    <div class="tagline">Modular &nbsp;|&nbsp; Adaptive &nbsp;|&nbsp; Quantum</div>
+    <div class="header-accent"></div>
+    <h1>Value Engineering &<br>Product Review Services</h1>
+    <p>Transform your prototype into a production-grade product &mdash; technically perfect, supply-chain resilient, and cost-optimized for mass manufacturing.</p>
+  </div>
+</header>
+
+<!-- ════════ STATS BAR ════════ -->
+<div class="container">
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">15&ndash;40%</div>
+      <div class="stat-label">BOM Cost Reduction</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">&gt;95%</div>
+      <div class="stat-label">First-Pass Yield Target</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">5 Phases</div>
+      <div class="stat-label">End-to-End Review</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">10x</div>
+      <div class="stat-label">ROI per Rupee Invested</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ THE PROBLEM ════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">The Challenge</div>
+    <div class="section-heading">Why Most Products Fail at Scale</div>
+    <div class="section-desc">70&ndash;80% of a product's lifecycle cost is locked in during the design phase. Skipping value engineering before production is one of the most expensive mistakes a hardware company can make.</div>
+
+    <div class="process-flow">
+      <div class="process-step">Prototype Works</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step">Send to Production</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step" style="background:#FDE8E7;color:var(--red);">Low Yield, High Cost, Supply Issues</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step" style="background:#FDE8E7;color:var(--red);">Expensive Re-spins</div>
+    </div>
+    <div class="process-flow" style="margin-top: 20px;">
+      <div class="process-step">Prototype Works</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step" style="background:var(--red);color:#fff;">Value Engineering</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step" style="background:#E8F5E9;color:#2E7D32;">Production-Ready</div>
+      <div class="process-arrow">&rarr;</div>
+      <div class="process-step" style="background:#E8F5E9;color:#2E7D32;">Scale with Confidence</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ 5 PHASES ════════ -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="section-title">Our Approach</div>
+    <div class="section-heading">5-Phase Product Optimization</div>
+    <div class="section-desc">Click each phase to see the detailed review checklist and what you receive.</div>
+
+    <div class="phases-grid">
+
+      <!-- Phase 1 -->
+      <div class="phase-card" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <div class="phase-number">1</div>
+          <div class="phase-info">
+            <div class="phase-label">Phase 1</div>
+            <div class="phase-name">Schematic Review & Optimization</div>
+            <div class="phase-brief">Line-by-line electrical correctness, safety compliance, and circuit optimization</div>
+          </div>
+          <div class="phase-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-content">
+            <div class="phase-columns">
+              <div class="check-group">
+                <h4><span class="dot"></span>Power Supply Architecture</h4>
+                <div class="check-item"><span class="tick">&check;</span>Regulator selection with 20&ndash;30% current headroom and thermal derating</div>
+                <div class="check-item"><span class="tick">&check;</span>Power sequencing, soft-start, and PGOOD signal validation</div>
+                <div class="check-item"><span class="tick">&check;</span>Protection circuits &mdash; UVLO, OVP, OCP implementation</div>
+                <div class="check-item"><span class="tick">&check;</span>Decoupling strategy audit (bulk + local capacitor values and placement)</div>
+                <div class="check-item"><span class="tick">&check;</span>Feedback network calculations verified</div>
+                <div class="check-item"><span class="tick">&check;</span>Enable pin pull-up/pull-down resistor audit</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Signal Integrity & Interfaces</h4>
+                <div class="check-item"><span class="tick">&check;</span>Impedance matching for CAN, SPI, I2C, UART interfaces</div>
+                <div class="check-item"><span class="tick">&check;</span>Differential pair routing and termination verification</div>
+                <div class="check-item"><span class="tick">&check;</span>Clock distribution &mdash; trace length, noise isolation, jitter analysis</div>
+                <div class="check-item"><span class="tick">&check;</span>CAN bus 120&Omega; termination placement</div>
+                <div class="check-item"><span class="tick">&check;</span>I2C pull-up resistor values (2.2k&ndash;10k&Omega;)</div>
+                <div class="check-item"><span class="tick">&check;</span>JTAG/SWD debug interface accessibility</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Safety & Protection</h4>
+                <div class="check-item"><span class="tick">&check;</span>ESD protection on all external connectors</div>
+                <div class="check-item"><span class="tick">&check;</span>Reverse polarity protection circuit</div>
+                <div class="check-item"><span class="tick">&check;</span>Over-current protection &mdash; fuse/PTC selection and rating</div>
+                <div class="check-item"><span class="tick">&check;</span>Creepage and clearance per IEC/UL standards</div>
+                <div class="check-item"><span class="tick">&check;</span>Isolation barrier integrity for high-voltage paths</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>General Electrical</h4>
+                <div class="check-item"><span class="tick">&check;</span>No floating pins &mdash; all unused IOs properly tied</div>
+                <div class="check-item"><span class="tick">&check;</span>Component temperature ratings vs. operating range</div>
+                <div class="check-item"><span class="tick">&check;</span>Capacitor voltage derating &gt;1.5&times; operating voltage</div>
+                <div class="check-item"><span class="tick">&check;</span>Net naming consistency and annotation</div>
+                <div class="check-item"><span class="tick">&check;</span>ERC clean &mdash; no unresolved warnings</div>
+              </div>
+            </div>
+            <div class="phase-outcome">
+              <strong>Deliverable: Schematic Review Report</strong>
+              <p>Annotated schematic with every issue classified as Critical / High / Medium / Low, recommended fixes, and verification checklist.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-line"></div>
+
+      <!-- Phase 2 -->
+      <div class="phase-card" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <div class="phase-number">2</div>
+          <div class="phase-info">
+            <div class="phase-label">Phase 2</div>
+            <div class="phase-name">Component & BOM Optimization</div>
+            <div class="phase-brief">Cost reduction, supply-chain de-risking, and component rationalization</div>
+          </div>
+          <div class="phase-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-content">
+            <div class="phase-columns">
+              <div class="check-group">
+                <h4><span class="dot"></span>Cost Analysis & Reduction</h4>
+                <div class="check-item"><span class="tick">&check;</span>Pareto analysis &mdash; top 20% components driving 80% of BOM cost</div>
+                <div class="check-item"><span class="tick">&check;</span>Volume pricing tiers evaluated (100, 1K, 10K, 100K units)</div>
+                <div class="check-item"><span class="tick">&check;</span>Passive value consolidation &mdash; reduce unique part numbers</div>
+                <div class="check-item"><span class="tick">&check;</span>Package size optimization (0402 vs. 0603 vs. 0805)</div>
+                <div class="check-item"><span class="tick">&check;</span>Cost-equivalent functional alternates identified</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Supply-Chain De-Risking</h4>
+                <div class="check-item"><span class="tick">&check;</span>Single-source components flagged with alternates</div>
+                <div class="check-item"><span class="tick">&check;</span>Lifecycle check &mdash; Active / NRND / EOL status</div>
+                <div class="check-item"><span class="tick">&check;</span>Lead time analysis vs. production ramp schedule</div>
+                <div class="check-item"><span class="tick">&check;</span>Multi-distributor availability (Digi-Key, Mouser, LCSC, local)</div>
+                <div class="check-item"><span class="tick">&check;</span>Geopolitical and allocation risk assessment</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Derating & Reliability</h4>
+                <div class="check-item"><span class="tick">&check;</span>Resistors: &lt;75% power rating</div>
+                <div class="check-item"><span class="tick">&check;</span>Capacitors: &lt;80% voltage rating</div>
+                <div class="check-item"><span class="tick">&check;</span>Semiconductors: junction temperature analysis (worst case)</div>
+                <div class="check-item"><span class="tick">&check;</span>Temperature ratings vs. full operating range (-20&deg;C to +60&deg;C)</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Alternate Component Matrix</h4>
+                <div class="check-item"><span class="tick">&check;</span>2&ndash;3 validated alternates for every critical IC</div>
+                <div class="check-item"><span class="tick">&check;</span>Generic equivalents for all passives</div>
+                <div class="check-item"><span class="tick">&check;</span>Pin-compatible and drop-in replacements documented</div>
+                <div class="check-item"><span class="tick">&check;</span>Formal AVL (Approved Vendor List) created</div>
+              </div>
+            </div>
+            <div class="phase-outcome">
+              <strong>Deliverable: BOM Optimization Report + AVL</strong>
+              <p>Complete cost analysis with current vs. optimized BOM, alternate component cross-reference matrix, procurement risk matrix, and Approved Vendor List.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-line"></div>
+
+      <!-- Phase 3 -->
+      <div class="phase-card" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <div class="phase-number">3</div>
+          <div class="phase-info">
+            <div class="phase-label">Phase 3</div>
+            <div class="phase-name">PCB Layout Review & DFM Optimization</div>
+            <div class="phase-brief">Manufacturability, signal/power integrity, thermal management, and EMI/EMC compliance</div>
+          </div>
+          <div class="phase-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-content">
+            <div class="phase-columns">
+              <div class="check-group">
+                <h4><span class="dot"></span>Stackup & Impedance</h4>
+                <div class="check-item"><span class="tick">&check;</span>Layer stackup validated vs. impedance requirements</div>
+                <div class="check-item"><span class="tick">&check;</span>50&Omega; single-ended / 100&Omega; differential verification</div>
+                <div class="check-item"><span class="tick">&check;</span>Stackup compatibility with PCB manufacturer capabilities</div>
+                <div class="check-item"><span class="tick">&check;</span>Controlled-impedance trace routing and via transitions</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Power Distribution (PDN)</h4>
+                <div class="check-item"><span class="tick">&check;</span>Copper pour adequacy &mdash; IR drop analysis</div>
+                <div class="check-item"><span class="tick">&check;</span>Decoupling capacitor distance from IC power pins</div>
+                <div class="check-item"><span class="tick">&check;</span>Ground plane continuity &mdash; no unintentional splits</div>
+                <div class="check-item"><span class="tick">&check;</span>Ground stitching vias around sensitive areas</div>
+                <div class="check-item"><span class="tick">&check;</span>Target impedance calculations verified</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Thermal & EMI/EMC</h4>
+                <div class="check-item"><span class="tick">&check;</span>Thermal via analysis for power MOSFETs, regulators</div>
+                <div class="check-item"><span class="tick">&check;</span>Heat sink spec and thermal pad sizing</div>
+                <div class="check-item"><span class="tick">&check;</span>High-speed signals away from board edges</div>
+                <div class="check-item"><span class="tick">&check;</span>Guard traces on clock signals</div>
+                <div class="check-item"><span class="tick">&check;</span>Switching supply isolation from analog circuits</div>
+                <div class="check-item"><span class="tick">&check;</span>Ferrite bead and filter placement review</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>DFM/DFA Compliance</h4>
+                <div class="check-item"><span class="tick">&check;</span>Fiducial marks for pick-and-place alignment</div>
+                <div class="check-item"><span class="tick">&check;</span>Component orientation consistency</div>
+                <div class="check-item"><span class="tick">&check;</span>Test point accessibility for ICT fixtures</div>
+                <div class="check-item"><span class="tick">&check;</span>Panelization design for throughput</div>
+                <div class="check-item"><span class="tick">&check;</span>Solder paste stencil aperture review</div>
+                <div class="check-item"><span class="tick">&check;</span>Component spacing for automated rework</div>
+              </div>
+            </div>
+            <div class="phase-outcome">
+              <strong>Deliverable: PCB Layout Review Report</strong>
+              <p>Annotated layout with DFM issues, signal/power integrity findings, thermal hotspot analysis, and EMC recommendations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-line"></div>
+
+      <!-- Phase 4 -->
+      <div class="phase-card" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <div class="phase-number">4</div>
+          <div class="phase-info">
+            <div class="phase-label">Phase 4</div>
+            <div class="phase-name">Supply-Chain Strategy & Vendor Management</div>
+            <div class="phase-brief">Dual-sourced procurement from pilot (50 units) to mass production (10K+ units/month)</div>
+          </div>
+          <div class="phase-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-content">
+            <div class="phase-columns">
+              <div class="check-group">
+                <h4><span class="dot"></span>Vendor Qualification</h4>
+                <div class="check-item"><span class="tick">&check;</span>AVL with primary + alternate supplier for every BOM line item</div>
+                <div class="check-item"><span class="tick">&check;</span>2&ndash;3 qualified PCB fabrication houses (domestic + international)</div>
+                <div class="check-item"><span class="tick">&check;</span>2&ndash;3 qualified PCBA assembly houses (SMT capability matched)</div>
+                <div class="check-item"><span class="tick">&check;</span>Vendor capability audit against your design requirements</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Procurement Strategy</h4>
+                <div class="check-item"><span class="tick">&check;</span>Volume pricing breakpoints negotiated</div>
+                <div class="check-item"><span class="tick">&check;</span>Framework purchase order recommendations</div>
+                <div class="check-item"><span class="tick">&check;</span>Procurement risk matrix (lead time, MOQ, single-source flags)</div>
+                <div class="check-item"><span class="tick">&check;</span>Safety stock levels for critical long-lead components</div>
+                <div class="check-item"><span class="tick">&check;</span>Inventory buffer strategy for production continuity</div>
+              </div>
+            </div>
+            <div class="phase-outcome">
+              <strong>Deliverable: Supply-Chain Strategy Document</strong>
+              <p>Complete vendor qualification report, dual-sourcing plan, procurement risk matrix, and recommended inventory buffer strategy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-line"></div>
+
+      <!-- Phase 5 -->
+      <div class="phase-card" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <div class="phase-number">5</div>
+          <div class="phase-info">
+            <div class="phase-label">Phase 5</div>
+            <div class="phase-name">Production Readiness Package</div>
+            <div class="phase-brief">Complete manufacturing documentation &mdash; hand it to any CM and they can produce independently</div>
+          </div>
+          <div class="phase-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-content">
+            <div class="phase-columns">
+              <div class="check-group">
+                <h4><span class="dot"></span>Manufacturing File Package</h4>
+                <div class="check-item"><span class="tick">&check;</span>Verified Gerber files (RS-274X) with layer stackup docs</div>
+                <div class="check-item"><span class="tick">&check;</span>Drill files (Excellon format) with tool lists</div>
+                <div class="check-item"><span class="tick">&check;</span>Assembly drawings (top/bottom) with polarity and placement notes</div>
+                <div class="check-item"><span class="tick">&check;</span>Pick-and-place CSV files verified against drawings</div>
+                <div class="check-item"><span class="tick">&check;</span>Finalized BOM with AVL, alternates, and volume pricing</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Test Specification</h4>
+                <div class="check-item"><span class="tick">&check;</span>Functional test procedure &mdash; step-by-step with pass/fail</div>
+                <div class="check-item"><span class="tick">&check;</span>Test point map with purpose and expected values</div>
+                <div class="check-item"><span class="tick">&check;</span>ICT (In-Circuit Test) coverage analysis</div>
+                <div class="check-item"><span class="tick">&check;</span>Test fixture specification</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Quality Control Plan</h4>
+                <div class="check-item"><span class="tick">&check;</span>Incoming component inspection criteria</div>
+                <div class="check-item"><span class="tick">&check;</span>In-process checkpoints (post-placement, post-reflow)</div>
+                <div class="check-item"><span class="tick">&check;</span>Final acceptance criteria with measurable specs</div>
+                <div class="check-item"><span class="tick">&check;</span>First-pass yield target &gt;95%</div>
+              </div>
+              <div class="check-group">
+                <h4><span class="dot"></span>Production Handoff</h4>
+                <div class="check-item"><span class="tick">&check;</span>Reflow profile and soldering requirements</div>
+                <div class="check-item"><span class="tick">&check;</span>MSL (Moisture Sensitivity Level) and baking specs</div>
+                <div class="check-item"><span class="tick">&check;</span>ESD handling procedures</div>
+                <div class="check-item"><span class="tick">&check;</span>Rework procedures documented</div>
+              </div>
+            </div>
+            <div class="phase-outcome">
+              <strong>Deliverable: Production-Ready Manufacturing Package</strong>
+              <p>Everything a contract manufacturer needs: Gerbers, BOM, assembly docs, pick-and-place, test procedures, QC plan. Hand it over and they build.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════ DELIVERABLES ════════ -->
+<section class="deliverables-section">
+  <div class="container">
+    <div class="section-title">What You Receive</div>
+    <div class="section-heading">6 Comprehensive Deliverables</div>
+    <div class="section-desc">Click each deliverable to see what's included.</div>
+
+    <div class="deliverables-grid">
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon">&#128203;</div>
+        <h3>Schematic Review Report</h3>
+        <div class="del-brief">Annotated schematic with every finding classified and fix recommended</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Issue severity: Critical / High / Medium / Low</li>
+          <li>Annotated PDF with marked-up problem areas</li>
+          <li>Specific fix recommendations with calculations</li>
+          <li>Verification checklist for post-fix validation</li>
+          <li>Reference to applicable standards (IEC, UL)</li>
+        </ul></div></div>
+      </div>
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon">&#128200;</div>
+        <h3>BOM Optimization Report</h3>
+        <div class="del-brief">Cost breakdown, alternates, and per-unit savings roadmap</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Current vs. optimized BOM cost comparison</li>
+          <li>Volume pricing at 1K / 10K / 100K breakpoints</li>
+          <li>Component rationalization recommendations</li>
+          <li>Per-unit savings projection by volume</li>
+          <li>Risk-scored single-source component list</li>
+        </ul></div></div>
+      </div>
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon">&#128187;</div>
+        <h3>PCB Layout Review Report</h3>
+        <div class="del-brief">DFM findings, power/signal integrity, thermal and EMC analysis</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Annotated PCB markup with DFM violations</li>
+          <li>Power integrity (IR drop, PDN impedance) findings</li>
+          <li>Signal integrity review for high-speed traces</li>
+          <li>Thermal hotspot identification</li>
+          <li>EMC layout practice compliance checklist</li>
+        </ul></div></div>
+      </div>
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon">&#128666;</div>
+        <h3>Supply-Chain Strategy</h3>
+        <div class="del-brief">Vendor qualification, dual-sourcing plan, and inventory strategy</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Approved Vendor List (AVL) with alternates</li>
+          <li>Qualified PCB fab and assembly house shortlist</li>
+          <li>Procurement risk matrix</li>
+          <li>Safety stock and buffer recommendations</li>
+          <li>Vendor capability vs. design requirement matrix</li>
+        </ul></div></div>
+      </div>
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon">&#128230;</div>
+        <h3>Production-Ready Mfg Package</h3>
+        <div class="del-brief">Complete file set for any contract manufacturer to build</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Verified Gerber + drill + stackup files</li>
+          <li>Assembly drawings with orientation notes</li>
+          <li>Pick-and-place CSV + BOM</li>
+          <li>Functional test procedure + ICT spec</li>
+          <li>QC plan with acceptance criteria</li>
+        </ul></div></div>
+      </div>
+
+      <div class="del-card" onclick="toggleDel(this)">
+        <div class="del-icon" style="background:rgba(230,48,39,0.3);">&#9733;</div>
+        <h3>Value Engineering Summary</h3>
+        <div class="del-brief">Consolidated cost-reduction roadmap with projected savings</div>
+        <div class="del-detail"><div class="del-detail-inner"><ul>
+          <li>Per-unit cost savings breakdown by category</li>
+          <li>Volume-scaled total savings projection</li>
+          <li>Priority-ranked optimization opportunities</li>
+          <li>Implementation timeline recommendations</li>
+          <li>ROI analysis for each optimization area</li>
+        </ul></div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════ WHY MAQLABS ════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">Why MaqLabs</div>
+    <div class="section-heading">Production DNA, Not Just Design Theory</div>
+    <div class="section-desc">Our team has taken products from concept to 10,000+ units/month production lines. We know what breaks at scale.</div>
+
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-value">12+</div>
+        <div class="why-label">Years Hardware Design</div>
+        <div class="why-desc">BMS for Bajaj Chetak (India), American Battery Solutions (USA), VinFast (Vietnam) &mdash; each producing 10K+ units/month</div>
+      </div>
+      <div class="why-card">
+        <div class="why-value">3</div>
+        <div class="why-label">Production BMS Platforms</div>
+        <div class="why-desc">Not just prototypes &mdash; real production lines, real yield targets, real supply-chain challenges solved</div>
+      </div>
+      <div class="why-card">
+        <div class="why-value">E2E</div>
+        <div class="why-label">End-to-End Under One Roof</div>
+        <div class="why-desc">Schematic &rarr; PCB &rarr; Firmware &rarr; Prototype &rarr; Validation &rarr; Production Handoff. No handoff gaps</div>
+      </div>
+      <div class="why-card">
+        <div class="why-value">IPC</div>
+        <div class="why-label">Standards-Driven Process</div>
+        <div class="why-desc">Checklist-driven methodology based on IPC, IEC, UL standards &mdash; not ad-hoc opinions</div>
+      </div>
+      <div class="why-card">
+        <div class="why-value">BMS</div>
+        <div class="why-label">Domain Expertise</div>
+        <div class="why-desc">Battery Management Systems, Power Electronics, EV-grade hardware &mdash; exactly your product space</div>
+      </div>
+      <div class="why-card">
+        <div class="why-value" style="font-size:28px;">Team</div>
+        <div class="why-label">Ex-Microsoft, ABB, Toshiba</div>
+        <div class="why-desc">Akshay Godse (firmware, ex-MSFT/Toshiba), Ishan Trivedi (product architecture, ex-ABB Switzerland, 14+ years)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FAQ ════════ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-title">Frequently Asked Questions</div>
+    <div class="section-heading">Everything You Need to Know</div>
+    <div class="section-desc">Click any question to see the detailed answer.</div>
+
+    <div class="faq-list">
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">What exactly is Value Engineering, and how is it different from a regular design review?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>A <strong>regular design review</strong> checks whether your circuit works correctly &mdash; does the schematic have errors? Does the PCB route properly?</p>
+          <p><strong>Value Engineering</strong> goes far beyond that. It asks: <em>can this design be manufactured at scale, reliably, at the lowest possible cost, without supply-chain risk?</em> It covers three dimensions simultaneously:</p>
+          <ul>
+            <li><strong>Technical perfection</strong> &mdash; electrical correctness, signal/power integrity, thermal, EMC</li>
+            <li><strong>Cost optimization</strong> &mdash; BOM reduction, component rationalization, volume pricing</li>
+            <li><strong>Supply-chain resilience</strong> &mdash; alternate sourcing, lifecycle management, vendor qualification</li>
+          </ul>
+          <p>The result is a design that doesn't just work on the bench &mdash; it works at 10,000 units/month with predictable cost and yield.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">My prototype is already working. Why do I need this before mass production?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>A working prototype and a production-ready design are very different things. Common issues that only appear at scale:</p>
+          <ul>
+            <li><strong>Yield problems</strong> &mdash; soldering defects due to poor DFM, components too close together, missing fiducials</li>
+            <li><strong>Supply disruptions</strong> &mdash; single-source ICs going on allocation, 26-week lead times discovered after placing the order</li>
+            <li><strong>Cost surprises</strong> &mdash; BOM costs 40% higher than expected at volume because no one negotiated pricing or checked alternates</li>
+            <li><strong>Field failures</strong> &mdash; thermal issues, ESD susceptibility, or derating violations that only surface under real-world conditions</li>
+          </ul>
+          <p>Industry data shows that <strong>70&ndash;80% of product lifecycle cost is locked in during the design phase</strong>. Fixing these issues after tooling is 10&ndash;100x more expensive than fixing them now.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">What do you need from us to get started?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>We need your current design package. Typically this includes:</p>
+          <ul>
+            <li><strong>Schematic files</strong> &mdash; native EDA format (Altium, KiCad, OrCAD) or PDF</li>
+            <li><strong>PCB layout files</strong> &mdash; native EDA format, Gerber/ODB++, or at minimum a PDF with all layers</li>
+            <li><strong>Bill of Materials (BOM)</strong> &mdash; Excel/CSV with part numbers, quantities, manufacturer names</li>
+            <li><strong>Product specification</strong> &mdash; what does the product do, operating conditions, target environment</li>
+            <li><strong>Target production volumes</strong> &mdash; even a rough estimate (100/month vs. 10,000/month) changes the optimization strategy</li>
+          </ul>
+          <p>That's it. We handle everything from there and come back with actionable reports.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">How much BOM cost reduction can we realistically expect?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>It depends on the current state of the design, but based on our experience across multiple products:</p>
+          <ul>
+            <li><strong>15&ndash;25% reduction</strong> is typical for designs that were prototype-optimized but never production-optimized</li>
+            <li><strong>25&ndash;40% reduction</strong> is achievable when the original design used premium/evaluation components without considering volume alternatives</li>
+            <li><strong>10&ndash;15% reduction</strong> for designs that have already gone through one round of cost optimization</li>
+          </ul>
+          <p>The savings come from multiple sources: passive value consolidation (fewer unique part numbers), package size optimization, volume pricing negotiation, switching to pin-compatible lower-cost alternates, and eliminating over-specified components.</p>
+          <p>We provide a <strong>projected savings table</strong> broken down by volume (1K, 10K, 100K units) so you can see the exact ROI.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">Will you change our schematic or PCB design, or just review it?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>Our standard engagement is a <strong>review + recommendation</strong> model:</p>
+          <ul>
+            <li>We thoroughly review your schematic, BOM, and PCB layout</li>
+            <li>We deliver detailed reports with every issue classified by severity (Critical / High / Medium / Low)</li>
+            <li>Each issue includes the <strong>specific recommended fix</strong> &mdash; not vague suggestions, but exact component values, routing changes, or layout modifications</li>
+          </ul>
+          <p>Your team can then implement the changes, or we can implement them for you as a follow-on engagement. Either way, <strong>you retain full ownership</strong> of all design files and reports.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">Can you also help us find and qualify a contract manufacturer (CM)?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>Yes. Phase 4 (Supply-Chain Strategy) specifically covers this:</p>
+          <ul>
+            <li>We shortlist <strong>2&ndash;3 PCB fabrication houses</strong> (domestic India + international backup) matched to your stackup and volume</li>
+            <li>We shortlist <strong>2&ndash;3 PCBA assembly houses</strong> with SMT capability that matches your component density and package types</li>
+            <li>We audit their capabilities against your specific design requirements</li>
+          </ul>
+          <p>The Phase 5 Production Readiness Package is specifically designed so that <strong>any qualified CM can build your product independently</strong> with the documentation we provide &mdash; Gerbers, BOM, assembly drawings, pick-and-place files, test procedures, and QC plan.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">How long does the full 5-phase engagement take?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>For a single product board, the typical timeline is:</p>
+          <ul>
+            <li><strong>Phase 1&ndash;3</strong> (Schematic + BOM + PCB review): 3&ndash;4 weeks in parallel</li>
+            <li><strong>Phase 4</strong> (Supply-chain strategy): 2&ndash;3 weeks, can overlap with Phase 1&ndash;3</li>
+            <li><strong>Phase 5</strong> (Production readiness package): 2&ndash;3 weeks after design changes are finalized</li>
+          </ul>
+          <p><strong>Total: 6&ndash;8 weeks</strong> from kickoff to a complete production-ready package. This is significantly faster than the typical 3&ndash;4 prototype re-spin cycles that companies experience without VE (which can take 6&ndash;12 months).</p>
+          <p>If you need a specific phase urgently (e.g., just the schematic review before your next PCB order), we can prioritize and deliver that within <strong>1&ndash;2 weeks</strong>.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">Can we engage for just one or two phases instead of all five?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p><strong>Absolutely.</strong> Each phase is designed to deliver standalone value. Common configurations:</p>
+          <ul>
+            <li><strong>Quick VE</strong> &mdash; Phase 1 + 2 only (Schematic + BOM). Best if you just need design validation and cost optimization before your next board spin.</li>
+            <li><strong>DFM Focus</strong> &mdash; Phase 3 only (PCB Layout + DFM). Best if your schematic is solid but you want to ensure the layout is production-ready.</li>
+            <li><strong>Full Production Prep</strong> &mdash; All 5 phases. Best if you're moving from prototype to volume production and want everything locked down.</li>
+          </ul>
+          <p>We recommend starting with Phases 1&ndash;3 at minimum, since schematic, BOM, and PCB issues are deeply interconnected. But it's your call &mdash; we tailor to your needs.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">What standards and methodologies do you follow for the review?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p>Our review process is checklist-driven and grounded in industry standards:</p>
+          <ul>
+            <li><strong>IPC-A-610</strong> &mdash; Acceptability of Electronic Assemblies (for soldering and assembly quality criteria)</li>
+            <li><strong>IPC-2221/2222</strong> &mdash; PCB design standards (trace widths, spacing, via sizing)</li>
+            <li><strong>IEC 61000-4-x</strong> &mdash; EMC and ESD immunity standards</li>
+            <li><strong>UL/CE requirements</strong> &mdash; Safety and compliance considerations for your target markets</li>
+            <li><strong>Component derating guidelines</strong> &mdash; Per JEDEC and manufacturer recommendations</li>
+          </ul>
+          <p>Every finding in our reports references the applicable standard, so your team (or any third party) can independently verify our recommendations.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <div class="faq-q-text">Is our design data kept confidential?</div>
+          <div class="faq-toggle"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">
+          <p><strong>Yes, absolutely.</strong> All design data &mdash; schematics, PCB layouts, BOM, specifications &mdash; is treated as your confidential information. We operate under a signed NDA and adhere to strict data handling practices:</p>
+          <ul>
+            <li>Design files are stored on secure, access-controlled systems</li>
+            <li>Only assigned engineers access your data</li>
+            <li>All review reports and deliverables become your intellectual property upon completion</li>
+            <li>We do not share, reuse, or reference your designs for any other client engagement</li>
+          </ul>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════ CTA ════════ -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Ready to Make Your Product Production-Perfect?</h2>
+    <p>Let's discuss your specific product and create a tailored value engineering roadmap.</p>
+    <a href="mailto:mohit@maqlabs.com?subject=Value Engineering Discussion" class="cta-btn">Let's Talk &rarr;</a>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="logo">maq labs</div>
+    <div class="tagline">Modular &nbsp;|&nbsp; Adaptive &nbsp;|&nbsp; Quantum</div>
+    <p>MaqLabs Technology LLP &nbsp;&bull;&nbsp; Varanasi, India &nbsp;&bull;&nbsp; <a href="https://maqlabs.com">maqlabs.com</a> &nbsp;&bull;&nbsp; +91 8600175076</p>
+  </div>
+</footer>
+
+<script>
+function togglePhase(card) {
+  const wasActive = card.classList.contains('active');
+  // Close all others
+  document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('active'));
+  if (!wasActive) card.classList.add('active');
+}
+
+function toggleDel(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  document.querySelectorAll('.del-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasExpanded) card.classList.add('expanded');
+}
+
+function toggleFaq(item) {
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
